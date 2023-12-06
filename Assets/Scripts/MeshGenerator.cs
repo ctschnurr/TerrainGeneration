@@ -20,6 +20,7 @@ public class MeshGenerator : MonoBehaviour
 
         CreateGrid();
         CreateTriangles();
+        ApplyNoise();
 
         CreateMesh();
     }
@@ -37,7 +38,7 @@ public class MeshGenerator : MonoBehaviour
         int count = 0;
         for (int z = 0; z <= zRange; z++)
         {
-            for (int x = 0; x < xRange; x++)
+            for (int x = 0; x <= xRange; x++)
             {
                 vertices[count] = new Vector3(x, 0, z);
                 count++;
@@ -51,28 +52,52 @@ public class MeshGenerator : MonoBehaviour
         int vertexIndex = 0;
         int triangleIndex = 0;
 
-        for (int x = 0; x < xRange; x++)
+        for (int z = 0; z < zRange; z++)
         {
-            triangles[triangleIndex + 0] = vertexIndex + 0;
-            triangles[triangleIndex + 1] = vertexIndex + xRange + 1;
-            triangles[triangleIndex + 2] = vertexIndex + 1;
-            triangles[triangleIndex + 3] = vertexIndex + 1;
-            triangles[triangleIndex + 4] = vertexIndex + xRange + 1;
-            triangles[triangleIndex + 5] = vertexIndex + xRange + 2;
+            for (int x = 0; x < xRange; x++)
+            {
+                triangles[triangleIndex + 0] = vertexIndex + 0;
+                triangles[triangleIndex + 1] = vertexIndex + xRange + 1;
+                triangles[triangleIndex + 2] = vertexIndex + 1;
+                triangles[triangleIndex + 3] = vertexIndex + 1;
+                triangles[triangleIndex + 4] = vertexIndex + xRange + 1;
+                triangles[triangleIndex + 5] = vertexIndex + xRange + 2;
 
+                vertexIndex++;
+                triangleIndex += 6;
+            }
             vertexIndex++;
-            triangleIndex+=6;
         }
     }
 
-    public void CreateVertex(int x, int z)
+    public void ApplyNoise()
     {
-        
-    }
+        int count = 0;
 
-    public void MakeShape()
-    {
+        for (int z = 0; z <= zRange; z++)
+        {
+            for (int x = 0; x <= xRange; x++)
+            {
+                float y = Mathf.PerlinNoise(x * 0.3f, z * 0.4f);
+                vertices[count].y = y;
+                count++;
+            }
+        }
 
+        count = 0;
+
+        for (int z = 0; z <= zRange; z++)
+        {
+            for (int x = 0; x <= xRange; x++)
+            {
+                if(vertices[count].y > 0.5)
+                {
+                    float y = Mathf.PerlinNoise(x * 1.2f, z * 1.3f);
+                    vertices[count].y = y;
+                }
+                count++;
+            }
+        }
     }
 
     public void CreateMesh()
