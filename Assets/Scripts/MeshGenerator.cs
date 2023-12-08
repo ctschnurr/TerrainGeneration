@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class MeshGenerator : MonoBehaviour
 {
@@ -22,6 +25,18 @@ public class MeshGenerator : MonoBehaviour
     public float yMultiplierAmount;
     public float yMultiplierThreshold;
 
+    public InputField xSize;
+    public InputField zSize;
+
+    public Slider xPerlSlider;
+    public Slider zPerlSlider;
+
+    public Slider yClampMinSlider;
+    public Slider yClampMaxSlider;
+
+    public Slider yMult;
+    public Slider yMultThreshold;
+
     void Start()
     {
         mesh = new Mesh();
@@ -37,7 +52,26 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
+    }
+    public void UpdateMesh()
+    {
+        xPerl = xPerlSlider.value;
+        zPerl = zPerlSlider.value;
+
+        yClampMin = yClampMinSlider.value;
+        yClampMax = yClampMaxSlider.value;
+
+        yMultiplierAmount = yMult.value;
+
+        mesh.Clear();
+
+        ApplyNoise();
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+
+        mesh.RecalculateNormals();
     }
 
     public void CreateGrid()
@@ -89,7 +123,7 @@ public class MeshGenerator : MonoBehaviour
             {
                 float y = Mathf.PerlinNoise(x * xPerl, z * zPerl);
 
-                if (y > yMultiplierThreshold) y *= yMultiplierAmount;
+                y *= yMultiplierAmount;
 
                 y = Mathf.Clamp(y, yClampMin, yClampMax);
                 vertices[count].y = y;
@@ -108,15 +142,4 @@ public class MeshGenerator : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-    public void ResetMesh()
-    {
-        mesh.Clear();
-
-        ApplyNoise();
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-
-        mesh.RecalculateNormals();
-    }
 }
