@@ -13,6 +13,15 @@ public class MeshGenerator : MonoBehaviour
     public int xRange = 10;
     public int zRange = 10;
 
+    public float xPerl = 0.4f;
+    public float zPerl = 0.6f;
+
+    public float yClampMin;
+    public float yClampMax;
+
+    public float yMultiplierAmount;
+    public float yMultiplierThreshold;
+
     void Start()
     {
         mesh = new Mesh();
@@ -78,23 +87,12 @@ public class MeshGenerator : MonoBehaviour
         {
             for (int x = 0; x <= xRange; x++)
             {
-                float y = Mathf.PerlinNoise(x * 0.3f, z * 0.4f);
+                float y = Mathf.PerlinNoise(x * xPerl, z * zPerl);
+
+                if (y > yMultiplierThreshold) y *= yMultiplierAmount;
+
+                y = Mathf.Clamp(y, yClampMin, yClampMax);
                 vertices[count].y = y;
-                count++;
-            }
-        }
-
-        count = 0;
-
-        for (int z = 0; z <= zRange; z++)
-        {
-            for (int x = 0; x <= xRange; x++)
-            {
-                if(vertices[count].y > 0.5)
-                {
-                    float y = Mathf.PerlinNoise(x * 1.2f, z * 1.3f);
-                    vertices[count].y = y;
-                }
                 count++;
             }
         }
@@ -103,6 +101,18 @@ public class MeshGenerator : MonoBehaviour
     public void CreateMesh()
     {
         mesh.Clear();
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+
+        mesh.RecalculateNormals();
+    }
+
+    public void ResetMesh()
+    {
+        mesh.Clear();
+
+        ApplyNoise();
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
